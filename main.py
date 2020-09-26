@@ -42,7 +42,8 @@ def FilterLines(Lines):
 
         # Rejecting lines of slope near to 0 degree or 90 degree and storing others
         if REJECT_DEGREE_TH <= abs(theta) <= (90 - REJECT_DEGREE_TH):
-            FinalLines.append([x1, y1, x2, y2, m, c])
+            l = math.sqrt( (y2 - y1)**2 + (x2 - x1)**2 )    # length of the line
+            FinalLines.append([x1, y1, x2, y2, m, c, l])
 
     return FinalLines
     
@@ -59,12 +60,20 @@ def GetLines(Image):
     # Finding Lines in the image
     Lines = cv2.HoughLinesP(EdgeImage, 1, np.pi / 180, 50, 10, 10)
     
+    # Filtering Lines wrt angle
     Lines = FilterLines(Lines)
     
+    # Removing extra lines 
+    # (we might get many lines, so we are going to take only longest 15 lines 
+    # for further computation because more than this number of lines will only 
+    # contribute towards slowing down of our algo.)
+    if len(Lines) > 15:
+        Lines = sorted(Lines, key=lambda x: x[-1], reverse=True)
+        Lines = Lines[:15]
+    
     for line in Lines:
-        [x1, y1, x2, y2, m, c] = line
+        [x1, y1, x2, y2, m, c, l] = line
         cv2.line(Image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
     
     
 
