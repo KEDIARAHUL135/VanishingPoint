@@ -71,10 +71,7 @@ def GetLines(Image):
         Lines = sorted(Lines, key=lambda x: x[-1], reverse=True)
         Lines = Lines[:15]
     
-    for line in Lines:
-        [x1, y1, x2, y2, m, c, l] = line
-        cv2.line(Image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-    
+    return Lines
     
 
 if __name__ == "__main__":
@@ -84,7 +81,7 @@ if __name__ == "__main__":
         Image = Images[i]
 
         # Getting the lines form the image
-        GetLines(Image)
+        Lines = GetLines(Image)
 
         cv2.imshow("Ia", Image)
         cv2.waitKey(0)
