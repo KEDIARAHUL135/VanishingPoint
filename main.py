@@ -58,7 +58,12 @@ def GetLines(Image):
     EdgeImage = cv2.Canny(BlurGrayImage, 40, 255)
 
     # Finding Lines in the image
-    Lines = cv2.HoughLinesP(EdgeImage, 1, np.pi / 180, 50, 10, 10)
+    Lines = cv2.HoughLinesP(EdgeImage, 1, np.pi / 180, 50, 10, 15)
+
+    # Check if lines found and exit if not.
+    if Lines is None:
+        print("Not enough lines found in the image for Vanishing Point detection.")
+        exit(0)
     
     # Filtering Lines wrt angle
     Lines = FilterLines(Lines)
@@ -79,7 +84,7 @@ def GetVanishingPoint(Lines):
     # of 2 lines one by one, find their intersection point, and calculate the 
     # total error(loss) of that point. Error of the point means root of sum of 
     # squares of distance of that point from each line.
-    VanishingPoint = [None, None]
+    VanishingPoint = None
     MinError = 100000000000
 
     for i in range(len(Lines)):
@@ -126,7 +131,16 @@ if __name__ == "__main__":
         # Get vanishing point
         VanishingPoint = GetVanishingPoint(Lines)
 
+        # Checking if vanishing point found
+        if VanishingPoint is None:
+            print("Vanishing Point not found. Possible reason is that not enough lines are found in the image for determination of vanishing point.")
+            continue
+
+        # Drawing lines and vanishing point
+        for Line in Lines:
+            cv2.line(Image, (Line[0], Line[1]), (Line[2], Line[3]), (0, 255, 0), 2)
         cv2.circle(Image, (int(VanishingPoint[0]), int(VanishingPoint[1])), 10, (0, 0, 255), -1)
 
-        cv2.imshow("Ia", Image)
+        # Showing the final image
+        cv2.imshow("OutputImage", Image)
         cv2.waitKey(0)
