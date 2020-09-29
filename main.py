@@ -8,20 +8,36 @@ import numpy as np
 REJECT_DEGREE_TH = 4.0
 
 
-def ReadImage(InputImageFolderPath):
-    '''
-    This function will read all the images from the Folder path provided 
-    and store the images and their names in 2 lists and return it.
-    '''
+def ReadImage(InputImagePath):
     Images = []                     # Input Images will be stored in this list.
     ImageNames = []                 # Names of input images will be stored in this list.
     
-    # Getting all image's name present inside the folder.
-    for ImageName in os.listdir(InputImageFolderPath):
-        InputImage = cv2.imread(InputImageFolderPath + "/" + ImageName)     # Reading images one by one.
-        Images.append(InputImage)                                           # Storing images.
-        ImageNames.append(ImageName)                                        # Storing image's names.
-    
+    # Checking if path is of file or folder.
+    if os.path.isfile(InputImagePath):						    # If path is of file.
+		InputImage = cv2.imread(InputImagePath)				    # Reading the image.
+        
+        # Checking if image is read.
+        if InputImage is None:
+            print("Image not read. Provide a correct path")
+            exit()
+
+		Images.append(InputImage)							    # Storing the image.
+		ImageNames.append(os.path.basename(InputImagePath))     # Storing the image's name.
+
+	# If path is of a folder contaning images.
+	elif os.path.isdir(InputImagePath):
+		# Getting all image's name present inside the folder.
+		for ImageName in os.listdir(InputImagePath):
+			# Reading images one by one.
+			InputImage = cv2.imread(InputImagePath + "/" + ImageName)
+			
+            Images.append(InputImage)										# Storing images.
+			ImageNames.append(ImageName)									# Storing image's names.
+
+	else:																	# If it is neither file nor folder(Invalid Path).
+		print("\nEnter valid Image Path.\n")
+        exit()
+
     return Images, ImageNames
         
 
@@ -124,7 +140,7 @@ if __name__ == "__main__":
     
     for i in range(len(Images)):
         Image = Images[i]
-
+        c = Image.copy()
         # Getting the lines form the image
         Lines = GetLines(Image)
 
@@ -140,7 +156,8 @@ if __name__ == "__main__":
         for Line in Lines:
             cv2.line(Image, (Line[0], Line[1]), (Line[2], Line[3]), (0, 255, 0), 2)
         cv2.circle(Image, (int(VanishingPoint[0]), int(VanishingPoint[1])), 10, (0, 0, 255), -1)
-
+        c = np.hstack((c, Image))
+        cv2.imwrite("c"+str(i)+".jpg", c)
         # Showing the final image
         cv2.imshow("OutputImage", Image)
         cv2.waitKey(0)
