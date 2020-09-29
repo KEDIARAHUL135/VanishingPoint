@@ -62,6 +62,15 @@ def FilterLines(Lines):
             l = math.sqrt( (y2 - y1)**2 + (x2 - x1)**2 )    # length of the line
             FinalLines.append([x1, y1, x2, y2, m, c, l])
 
+    
+    # Removing extra lines 
+    # (we might get many lines, so we are going to take only longest 15 lines 
+    # for further computation because more than this number of lines will only 
+    # contribute towards slowing down of our algo.)
+    if len(FinalLines) > 15:
+        FinalLines = sorted(FinalLines, key=lambda x: x[-1], reverse=True)
+        FinalLines = FinalLines[:15]
+    
     return FinalLines
     
 
@@ -84,14 +93,6 @@ def GetLines(Image):
     
     # Filtering Lines wrt angle
     Lines = FilterLines(Lines)
-    
-    # Removing extra lines 
-    # (we might get many lines, so we are going to take only longest 15 lines 
-    # for further computation because more than this number of lines will only 
-    # contribute towards slowing down of our algo.)
-    if len(Lines) > 15:
-        Lines = sorted(Lines, key=lambda x: x[-1], reverse=True)
-        Lines = Lines[:15]
     
     return Lines
     
