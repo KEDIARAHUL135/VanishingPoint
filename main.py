@@ -14,28 +14,29 @@ def ReadImage(InputImagePath):
     
     # Checking if path is of file or folder.
     if os.path.isfile(InputImagePath):						    # If path is of file.
-		InputImage = cv2.imread(InputImagePath)				    # Reading the image.
+        InputImage = cv2.imread(InputImagePath)                 # Reading the image.
         
         # Checking if image is read.
         if InputImage is None:
             print("Image not read. Provide a correct path")
             exit()
-
-		Images.append(InputImage)							    # Storing the image.
-		ImageNames.append(os.path.basename(InputImagePath))     # Storing the image's name.
+        
+        Images.append(InputImage)                               # Storing the image.
+        ImageNames.append(os.path.basename(InputImagePath))     # Storing the image's name.
 
 	# If path is of a folder contaning images.
-	elif os.path.isdir(InputImagePath):
+    elif os.path.isdir(InputImagePath):
 		# Getting all image's name present inside the folder.
-		for ImageName in os.listdir(InputImagePath):
+        for ImageName in os.listdir(InputImagePath):
 			# Reading images one by one.
-			InputImage = cv2.imread(InputImagePath + "/" + ImageName)
+            InputImage = cv2.imread(InputImagePath + "/" + ImageName)
 			
-            Images.append(InputImage)										# Storing images.
-			ImageNames.append(ImageName)									# Storing image's names.
-
-	else:																	# If it is neither file nor folder(Invalid Path).
-		print("\nEnter valid Image Path.\n")
+            Images.append(InputImage)							# Storing images.
+            ImageNames.append(ImageName)                        # Storing image's names.
+        
+    # If it is neither file nor folder(Invalid Path).
+    else:
+        print("\nEnter valid Image Path.\n")
         exit()
 
     return Images, ImageNames
