@@ -35,7 +35,7 @@ int ReadImage(std::string InputImagePath, std::vector<cv::Mat>& Images, std::vec
 			cv::Mat InputImage = cv::imread(entry.path().u8string());
 
 			Images.push_back(InputImage);            // Storing the image.
-			ImageNames.push_back(InputImagePath);    // Storing the image's name.
+			ImageNames.push_back(entry.path().filename().u8string());    // Storing the image's name.
 		}
 	}
 	
