@@ -1,9 +1,15 @@
+#define _USE_MATH_DEFINES
+
 #include "opencv2/opencv.hpp"
 #include <iostream>
 #include <filesystem>
+#include <cmath>
 
 
 namespace fs = std::filesystem;		// ISO C++17 Standard (/std:c++17)
+
+
+float REJECT_DEGREE_TH = 4.0;
 
 
 int ReadImage(std::string InputImagePath, std::vector<cv::Mat>& Images, std::vector<std::string>& ImageNames)
@@ -49,7 +55,61 @@ int ReadImage(std::string InputImagePath, std::vector<cv::Mat>& Images, std::vec
 }
 
 
-int GetLines(cv::Mat Image)
+std::vector<std::vector<double>> FilterLines(std::vector<cv::Vec4i> Lines)
+{
+	std::vector<std::vector<double>> FinalLines;
+
+	for (int i = 0; i < Lines.size(); i++)
+	{
+		cv::Vec4i Line = Lines[i];
+		int x1 = Line[0], y1 = Line[1];
+		int x2 = Line[2], y2 = Line[3];
+		
+		double m, c;
+
+		// Calculating equation of the line : y = mx + c
+		if (x1 != x2)
+			m = (y2 - y1) / (x2 - x1);
+		else
+			m = 10000000.0;
+		c = y2 - m * x2;
+		
+		// theta will contain values between - 90 -> + 90.
+		double theta = atan(m) * (180 / M_PI);
+
+		/*# Rejecting lines of slope near to 0 degree or 90 degree and storing others
+        if REJECT_DEGREE_TH <= abs(theta) <= (90 - REJECT_DEGREE_TH):
+            l = math.sqrt( (y2 - y1)**2 + (x2 - x1)**2 )    # length of the line
+            FinalLines.append([x1, y1, x2, y2, m, c, l])*/
+		// Rejecting lines of slope near to 0 degree or 90 degree and storing others
+		if (REJECT_DEGREE_TH <= abs(theta) && abs(theta) <= (90.0 - REJECT_DEGREE_TH))
+		{
+			double l = pow((pow((y2 - y1), 2) + pow((x2 - x1), 2)), 0.5);	// length of the line
+			std::vector<double> FinalLine{ (double)x1, (double)y1, (double)x2, (double)y2, m, c, l };
+			FinalLines.push_back(FinalLine);
+		}
+	}
+
+	// Removing extra lines
+	// (we might get many lines, so we are going to take only longest 15 lines 
+	// for further computation because more than this number of lines will only
+	// contribute towards slowing down of our algo.)
+	if (FinalLines.size() > 15)
+	{
+		std::sort(FinalLines.begin(), FinalLines.end(), 
+				  [](const std::vector< double >& a, 
+					 const std::vector< double >& b) 
+					{ return a[6] > b[6]; });
+		
+		std::vector<std::vector<double>> FinalLines2;
+		FinalLines = std::vector<std::vector<double>>(FinalLines.begin(), FinalLines.begin() + 15);
+	}
+
+	return FinalLines;
+}
+
+
+std::vector<std::vector<double>> GetLines(cv::Mat Image)
 {
 	cv::Mat GrayImage, BlurGrayImage, EdgeImage;
 	// Converting to grayscale
@@ -71,9 +131,10 @@ int GetLines(cv::Mat Image)
 	}
 
 	//Filtering Lines wrt angle
-	//code here
+	std::vector<std::vector<double>> FilteredLines;
+	FilteredLines = FilterLines(Lines);
 
-	return 0;
+	return FilteredLines;
 }
 
 
@@ -88,7 +149,8 @@ int main()
 		cv::Mat Image = Images[i].clone();
 
 		// Getting the lines form the image
-		GetLines(Image);
+		std::vector<std::vector<double>> Lines;
+		Lines = GetLines(Image);
 	}
 
 	return 0;
