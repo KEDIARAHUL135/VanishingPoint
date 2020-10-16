@@ -142,7 +142,7 @@ if __name__ == "__main__":
     
     for i in range(len(Images)):
         Image = Images[i]
-        c = Image.copy()
+
         # Getting the lines form the image
         Lines = GetLines(Image)
 
