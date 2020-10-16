@@ -55,7 +55,7 @@ def FilterLines(Lines):
             m = 100000000
         c = y2 - m*x2
         # theta will contain values between -90 -> +90. 
-        theta = abs(math.degrees(math.atan(m)))
+        theta = math.degrees(math.atan(m))
 
         # Rejecting lines of slope near to 0 degree or 90 degree and storing others
         if REJECT_DEGREE_TH <= abs(theta) <= (90 - REJECT_DEGREE_TH):
@@ -93,7 +93,7 @@ def GetLines(Image):
     
     # Filtering Lines wrt angle
     Lines = FilterLines(Lines)
-    
+
     return Lines
     
 
@@ -158,8 +158,7 @@ if __name__ == "__main__":
         for Line in Lines:
             cv2.line(Image, (Line[0], Line[1]), (Line[2], Line[3]), (0, 255, 0), 2)
         cv2.circle(Image, (int(VanishingPoint[0]), int(VanishingPoint[1])), 10, (0, 0, 255), -1)
-        c = np.hstack((c, Image))
-        cv2.imwrite("c"+str(i)+".jpg", c)
+        
         # Showing the final image
         cv2.imshow("OutputImage", Image)
         cv2.waitKey(0)
