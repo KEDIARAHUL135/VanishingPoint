@@ -138,6 +138,58 @@ std::vector<std::vector<double>> GetLines(cv::Mat Image)
 }
 
 
+int GetVanishingPoint(std::vector<std::vector<double>> Lines)
+{
+	// We will apply RANSAC inspired algorithm for this.We will take combination
+	// of 2 lines one by one, find their intersection point, and calculate the
+	// total error(loss) of that point.Error of the point means root of sum of
+	// squares of distance of that point from each line.
+	int VanishingPoint[2] = { -1, -1 };
+	double MinError = 1000000000.0;
+
+	for (int i = 0; i < Lines.size(); i++)
+	{
+		for (int j = i + 1; j < Lines.size(); j++)
+		{
+			double m1 = Lines[i][4], c1 = Lines[i][5];
+			double m2 = Lines[j][4], c2 = Lines[j][5];
+
+			if (m1 != m2)
+			{
+				double x0 = (c1 - c2) / (m2 - m1);
+				double y0 = m1 * x0 + c1;
+
+				double err = 0;
+				for (int k = 0; k < Lines.size(); k++)
+				{
+					double m = Lines[k][4], c = Lines[k][5];
+					double m_ = (-1 / m);
+					double c_ = y0 - m_ * x0;
+
+					double x_ = (c - c_) / (m_ - m);
+					double y_ = m_ * x_ + c_;
+
+					double l = pow((pow((y_ - y0), 2) + pow((x_ - x0), 2)), 0.5);
+
+					err += pow(l, 2);
+				}
+
+				err = pow(err, 0.5);
+
+				if (MinError > err)
+				{
+					MinError = err;
+					VanishingPoint[0] = (int)x0;
+					VanishingPoint[1] = (int)y0;
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+
+
 int main()
 {
 	std::vector<cv::Mat> Images;			// Input Images will be stored in this list.
@@ -151,6 +203,9 @@ int main()
 		// Getting the lines form the image
 		std::vector<std::vector<double>> Lines;
 		Lines = GetLines(Image);
+
+		// Get vanishing point
+		GetVanishingPoint(Lines);
 	}
 
 	return 0;
