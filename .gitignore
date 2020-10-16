@@ -11,3 +11,6 @@
 /*.sln
 /*.cmake
 /.vs
+/Debug/
+/*.dir/
+/x64/
