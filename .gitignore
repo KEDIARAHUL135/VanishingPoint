@@ -1,3 +1,13 @@
+# Python extra files
 /.vscode
 /__pycache__
 /.pylintrc
+
+
+# Cpp extra files
+/*.vcxproj*
+/CMakeCache.txt
+/CMakeFiles/
+/*.sln
+/*.cmake
+/.vs
