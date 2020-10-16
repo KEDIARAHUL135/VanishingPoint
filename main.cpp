@@ -138,7 +138,7 @@ std::vector<std::vector<double>> GetLines(cv::Mat Image)
 }
 
 
-int GetVanishingPoint(std::vector<std::vector<double>> Lines)
+int* GetVanishingPoint(std::vector<std::vector<double>> Lines)
 {
 	// We will apply RANSAC inspired algorithm for this.We will take combination
 	// of 2 lines one by one, find their intersection point, and calculate the
@@ -186,7 +186,7 @@ int GetVanishingPoint(std::vector<std::vector<double>> Lines)
 		}
 	}
 
-	return 0;
+	return VanishingPoint;
 }
 
 
@@ -205,7 +205,27 @@ int main()
 		Lines = GetLines(Image);
 
 		// Get vanishing point
-		GetVanishingPoint(Lines);
+		int* VanishingPoint;
+		VanishingPoint = GetVanishingPoint(Lines);
+
+		// Checking if vanishing point found
+		if (VanishingPoint[0] == -1 && VanishingPoint[1] == -1)
+		{
+			std::cout << "Vanishing Point not found. Possible reason is that not enough lines are found in the image for determination of vanishing point." << std::endl;
+			continue;
+		}
+
+		// Drawing linesand vanishing point
+		for (int i = 0; i < Lines.size(); i++)
+		{
+			std::vector<double> Line = Lines[i];
+			cv::line(Image, cv::Point((int)Line[0], (int)Line[1]), cv::Point((int)Line[2], (int)Line[3]), cv::Scalar(0, 255, 0), 2);
+		}
+		cv::circle(Image, cv::Point(VanishingPoint[0], VanishingPoint[1]), 10, cv::Scalar(0, 0, 255), -1);
+
+		// Showing the final image
+		cv::imshow("OutputImage", Image);
+		cv::waitKey(0);
 	}
 
 	return 0;
