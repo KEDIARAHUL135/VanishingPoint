@@ -49,13 +49,47 @@ int ReadImage(std::string InputImagePath, std::vector<cv::Mat>& Images, std::vec
 }
 
 
+int GetLines(cv::Mat Image)
+{
+	cv::Mat GrayImage, BlurGrayImage, EdgeImage;
+	// Converting to grayscale
+	cv::cvtColor(Image, GrayImage, cv::COLOR_BGR2GRAY);
+	// Blurring image to reduce noise.
+	cv::GaussianBlur(GrayImage, BlurGrayImage, cv::Size(5, 5), 1);
+	// Generating Edge image
+	cv::Canny(BlurGrayImage, EdgeImage, 40, 255);
+
+	// Finding Lines in the image
+	std::vector<cv::Vec4i> Lines;
+	cv::HoughLinesP(EdgeImage, Lines, 1, CV_PI / 180, 50, 10, 15);
+	
+	// Check if lines found and exit if not.
+	if (Lines.size() == 0)
+	{
+		std::cout << "Not enough lines found in the image for Vanishing Point detection." << std::endl;
+		exit(3);
+	}
+
+	//Filtering Lines wrt angle
+	//code here
+
+	return 0;
+}
+
+
 int main()
 {
 	std::vector<cv::Mat> Images;			// Input Images will be stored in this list.
 	std::vector<std::string> ImageNames;	// Names of input images will be stored in this list.
 	ReadImage("InputImages", Images, ImageNames);
 	
+	for (int i = 0; i < Images.size(); i++)
+	{
+		cv::Mat Image = Images[i].clone();
 
+		// Getting the lines form the image
+		GetLines(Image);
+	}
 
 	return 0;
 }
