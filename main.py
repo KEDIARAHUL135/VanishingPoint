@@ -92,9 +92,9 @@ def GetLines(Image):
         exit(0)
     
     # Filtering Lines wrt angle
-    Lines = FilterLines(Lines)
+    FilteredLines = FilterLines(Lines)
 
-    return Lines
+    return FilteredLines
     
 
 def GetVanishingPoint(Lines):
