@@ -69,13 +69,13 @@ std::vector<std::vector<double>> FilterLines(std::vector<cv::Vec4i> Lines)
 
 		// Calculating equation of the line : y = mx + c
 		if (x1 != x2)
-			m = (y2 - y1) / (x2 - x1);
+			m = (double)(y2 - y1) / (double)(x2 - x1);
 		else
-			m = 10000000.0;
+			m = 100000000.0;
 		c = y2 - m * x2;
 		
 		// theta will contain values between - 90 -> + 90.
-		double theta = atan(m) * (180 / M_PI);
+		double theta = atan(m) * (180.0 / M_PI);
 
 		/*# Rejecting lines of slope near to 0 degree or 90 degree and storing others
         if REJECT_DEGREE_TH <= abs(theta) <= (90 - REJECT_DEGREE_TH):
@@ -121,7 +121,7 @@ std::vector<std::vector<double>> GetLines(cv::Mat Image)
 
 	// Finding Lines in the image
 	std::vector<cv::Vec4i> Lines;
-	cv::HoughLinesP(EdgeImage, Lines, 1, CV_PI / 180, 50, 10, 15);
+	cv::HoughLinesP(EdgeImage, Lines, 1, CV_PI / 180, 50, 15);
 	
 	// Check if lines found and exit if not.
 	if (Lines.size() == 0)
@@ -144,7 +144,9 @@ int* GetVanishingPoint(std::vector<std::vector<double>> Lines)
 	// of 2 lines one by one, find their intersection point, and calculate the
 	// total error(loss) of that point.Error of the point means root of sum of
 	// squares of distance of that point from each line.
-	int VanishingPoint[2] = { -1, -1 };
+	int* VanishingPoint = new int[2];
+	VanishingPoint[0] = -1; VanishingPoint[1] = -1;
+
 	double MinError = 1000000000.0;
 
 	for (int i = 0; i < Lines.size(); i++)
@@ -205,8 +207,7 @@ int main()
 		Lines = GetLines(Image);
 
 		// Get vanishing point
-		int* VanishingPoint;
-		VanishingPoint = GetVanishingPoint(Lines);
+		int* VanishingPoint = GetVanishingPoint(Lines);
 
 		// Checking if vanishing point found
 		if (VanishingPoint[0] == -1 && VanishingPoint[1] == -1)
