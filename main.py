@@ -84,7 +84,7 @@ def GetLines(Image):
     EdgeImage = cv2.Canny(BlurGrayImage, 40, 255)
 
     # Finding Lines in the image
-    Lines = cv2.HoughLinesP(EdgeImage, 1, np.pi / 180, 50, 10, 15)
+    Lines = cv2.HoughLinesP(EdgeImage, rho=1, theta=np.pi / 180, threshold=50, maxLineGap=10, minLineLength=15)
 
     # Check if lines found and exit if not.
     if Lines is None:
